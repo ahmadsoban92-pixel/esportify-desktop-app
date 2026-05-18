@@ -8,29 +8,40 @@ load_dotenv()
 
 def get_db_connection(parent=None):
     """
-    Establishes a connection to the SQL Server database.
-    If parent is provided, shows a popup on error.
-    Otherwise, prints the error to the console.
+    Establishes a connection to the SQL Server database dynamically.
+    Supports both Client-Server (SQL Auth) and Local Machine (Windows Auth).
     """
     try:
         # --- CONFIGURATION (Securely loaded from .env) ---
         server = os.getenv('DB_SERVER')
         database = os.getenv('DB_NAME')
-        DB_USER = os.getenv('DB_USER')
-        DB_PASS = os.getenv('DB_PASS')
+        db_user = os.getenv('DB_USER')
+        db_pass = os.getenv('DB_PASS')
 
-        # Failsafe: Check if the variables actually loaded
+        # Failsafe: Server and Database name are always required
         if not server or not database:
-            raise ValueError("Database credentials not found. Make sure your .env file exists and is named correctly.")
+            raise ValueError("Database credentials not found. Make sure your .env file exists and has DB_SERVER and DB_NAME.")
 
-        # --- CONNECTION STRING ---
-        connection_string = (
-            f'DRIVER={{SQL Server}};'
-            f'SERVER={server};'
-            f'DATABASE={database};'
-            f'UID={DB_USER};'
-            f'PWD={DB_PASS};'
-        )
+        # --- CONNECTION STRING LOGIC ---
+        
+        # Scenario A: Client-Server Setup (Explicit SQL Authentication)
+        if db_user and db_pass:
+            connection_string = (
+                f'DRIVER={{SQL Server}};'
+                f'SERVER={server};'
+                f'DATABASE={database};'
+                f'UID={db_user};'
+                f'PWD={db_pass};'
+            )
+            
+        # Scenario B: Simple Local Setup (Windows Authentication Fallback)
+        else:
+            connection_string = (
+                f'DRIVER={{SQL Server}};'
+                f'SERVER={server};'
+                f'DATABASE={database};'
+                f'Trusted_Connection=yes;'
+            )
 
         conn = pyodbc.connect(connection_string)
         return conn
@@ -38,7 +49,7 @@ def get_db_connection(parent=None):
     except Exception as e:
         error_msg = f"Failed to connect to Database.\nError: {e}"
 
-        # If a parent window (like Login or Register) passed itself in, show a popup
+        # If a parent window passed itself in, show a popup
         if parent:
             QMessageBox.critical(parent, "Connection Error", error_msg)
         else:
