@@ -50,17 +50,26 @@ Execute the provided dbproject.sql script in MS SQL Server Management Studio (SS
 
 4. Environment Configuration
 
-Create a file named .env in the root directory (use .env.example as a template) and add your database and email credentials:
+Create a file named `.env` in the root directory (use `.env.example` as a template) and add your database and email credentials. 
 
-Plaintext
+**Database Connection Options:**
+
+* **Local/Simple Setup (Windows Auth):** Leave `DB_USER` and `DB_PASS` blank to use a Trusted Connection.
+
+* **Client-Server Setup (SQL Auth):** Fill in `DB_USER` and `DB_PASS` with your specific SQL Server credentials.
+
+```text
+# Database Configuration
 
 DB_SERVER=YOUR_SERVER_NAME_HERE
 
 DB_NAME=ESPORTS_SYSTEM
 
-DB_USER=YOUR_USERNAME
+DB_USER=YOUR_USERNAME  # Leave blank for local Windows Authentication
 
-DB_PASS=YOUR_PASSWORD
+DB_PASS=YOUR_PASSWORD  # Leave blank for local Windows Authentication
+
+# Email Verification Configuration
 
 EMAIL_USER=your_email@gmail.com
 
